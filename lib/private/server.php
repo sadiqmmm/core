@@ -131,7 +131,7 @@ class Server extends SimpleContainer implements IServerContainer {
 
 			return new Encryption\Keys\Storage($view, $util);
 		});
-		$this->registerService('TagMapper', function(Server $c) {
+		$this->registerService('TagMapper', function (Server $c) {
 			return new TagMapper($c->getDatabaseConnection());
 		});
 		$this->registerService('TagManager', function (Server $c) {
@@ -521,6 +521,11 @@ class Server extends SimpleContainer implements IServerContainer {
 				$request
 			);
 		});
+
+		$this->registerService('IniWrapper', function ($c) {
+			return new IniGetWrapper();
+		});
+
 	}
 
 	/**
