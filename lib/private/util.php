@@ -521,7 +521,7 @@ class OC_Util {
 	 */
 	private static function addExternalResource($application, $prepend, $path, $type = "script") {
 
-		if ($type == "style") {
+		if ($type === "style") {
 			if (!in_array($path, self::$styles)) {
 				if ($prepend === true) {
 					array_unshift ( self::$styles, $path );
@@ -529,7 +529,7 @@ class OC_Util {
 					self::$styles[] = $path;
 				}
 			}
-		} elseif ($type == "script") {
+		} elseif ($type === "script") {
 			if (!in_array($path, self::$scripts)) {
 				if ($prepend === true) {
 					array_unshift ( self::$scripts, $path );
