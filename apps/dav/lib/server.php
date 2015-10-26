@@ -7,6 +7,9 @@ use OCA\DAV\Connector\Sabre\BlockLegacyClientPlugin;
 use OCA\DAV\Files\CustomPropertiesBackend;
 use OCP\IRequest;
 use Sabre\DAV\Auth\Plugin;
+use Sabre\DAV\IFile;
+use Sabre\HTTP\RequestInterface;
+use Sabre\HTTP\ResponseInterface;
 use Sabre\HTTP\Util;
 
 class Server {
@@ -32,6 +35,14 @@ class Server {
 
 		$this->server->addPlugin(new BlockLegacyClientPlugin(\OC::$server->getConfig()));
 		$this->server->addPlugin(new Plugin($authBackend, 'ownCloud'));
+
+		// Serve all files with an Content-Disposition of type "attachment"
+		$this->server->on('beforeMethod', function (RequestInterface $requestInterface, ResponseInterface $responseInterface) {
+				$node = $this->server->tree->getNodeForPath($requestInterface->getPath());
+				if (($node instanceof IFile)) {
+					$responseInterface->addHeader('Content-Disposition', 'attachment');
+				}
+		});
 
 		// wait with registering these until auth is handled and the filesystem is setup
 		$this->server->on('beforeMethod', function () {
