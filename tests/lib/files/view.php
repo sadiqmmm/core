@@ -39,6 +39,13 @@ class TemporaryNoLocal extends \OC\Files\Storage\Temporary {
 	}
 }
 
+/**
+ * Class View
+ *
+ * @group DB
+ *
+ * @package Test\Files
+ */
 class View extends \Test\TestCase {
 	/**
 	 * @var \OC\Files\Storage\Storage[] $storages
