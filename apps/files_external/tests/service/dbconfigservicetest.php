@@ -232,7 +232,13 @@ class DBConfigServiceTest extends TestCase {
 		$this->dbConfig->addApplicable($id2, DBConfigService::APPLICABLE_TYPE_USER, 'test');
 		$this->dbConfig->addApplicable($id3, DBConfigService::APPLICABLE_TYPE_USER, 'test');
 
+
 		$mounts = $this->dbConfig->getAdminMountsFor(DBConfigService::APPLICABLE_TYPE_USER, 'test');
+
+		usort($mounts, function ($a, $b) {
+			return $a['id'] - $b['id'];
+		});
+
 		$this->assertCount(2, $mounts);
 		$this->assertEquals($id1, $mounts[0]['id']);
 		$this->assertEquals([['type' => DBConfigService::APPLICABLE_TYPE_GLOBAL, 'value' => null, 'mount_id' => $id1]], $mounts[0]['applicable']);
