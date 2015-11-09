@@ -165,7 +165,7 @@ class DBConfigServiceTest extends TestCase {
 
 		$mounts = $this->dbConfig->getMountsFor(DBConfigService::APPLICABLE_TYPE_USER, 'test');
 		$this->assertCount(1, $mounts);
-		$this->assertEquals($id, $mounts[0]['mount_id']);
+		$this->assertEquals($id, $mounts[0]['id']);
 		$this->assertEquals([['type' => DBConfigService::APPLICABLE_TYPE_USER, 'value' => 'test', 'mount_id' => $id]], $mounts[0]['applicable']);
 	}
 
@@ -175,7 +175,7 @@ class DBConfigServiceTest extends TestCase {
 
 		$mounts = $this->dbConfig->getAdminMounts();
 		$this->assertCount(1, $mounts);
-		$this->assertEquals($id1, $mounts[0]['mount_id']);
+		$this->assertEquals($id1, $mounts[0]['id']);
 	}
 
 	public function testGetAdminMountsFor() {
@@ -188,7 +188,7 @@ class DBConfigServiceTest extends TestCase {
 
 		$mounts = $this->dbConfig->getAdminMountsFor(DBConfigService::APPLICABLE_TYPE_USER, 'test');
 		$this->assertCount(1, $mounts);
-		$this->assertEquals($id1, $mounts[0]['mount_id']);
+		$this->assertEquals($id1, $mounts[0]['id']);
 		$this->assertEquals([['type' => DBConfigService::APPLICABLE_TYPE_USER, 'value' => 'test', 'mount_id' => $id1]], $mounts[0]['applicable']);
 	}
 
@@ -202,7 +202,7 @@ class DBConfigServiceTest extends TestCase {
 
 		$mounts = $this->dbConfig->getUserMountsFor(DBConfigService::APPLICABLE_TYPE_USER, 'test');
 		$this->assertCount(1, $mounts);
-		$this->assertEquals($id3, $mounts[0]['mount_id']);
+		$this->assertEquals($id3, $mounts[0]['id']);
 		$this->assertEquals([['type' => DBConfigService::APPLICABLE_TYPE_USER, 'value' => 'test', 'mount_id' => $id3]], $mounts[0]['applicable']);
 	}
 }
