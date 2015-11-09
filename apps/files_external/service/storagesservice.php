@@ -194,6 +194,7 @@ abstract class StoragesService {
 		);
 
 		$newStorage->setId($configId);
+		$isGlobal = count($newStorage->getApplicableGroups()) === 0 && count($newStorage->getApplicableUsers()) === 0;
 
 		foreach ($newStorage->getApplicableUsers() as $user) {
 			$this->dbConfig->addApplicable($configId, DBConfigService::APPLICABLE_TYPE_USER, $user);
@@ -206,6 +207,9 @@ abstract class StoragesService {
 		}
 		foreach ($newStorage->getMountOptions() as $key => $value) {
 			$this->dbConfig->setOption($configId, $key, $value);
+		}
+		if($isGlobal) {
+			$this->dbConfig->addApplicable($configId, DBConfigService::APPLICABLE_TYPE_GLOBAL, null);
 		}
 
 		// add new storage
@@ -356,6 +360,16 @@ abstract class StoragesService {
 		}
 		foreach ($changedOptions as $key => $value) {
 			$this->dbConfig->setOption($id, $key, $value);
+		}
+
+		$wasGlobal = count($oldStorage->getApplicableGroups()) === 0 && count($oldStorage->getApplicableUsers()) === 0;
+		$isGlobal = count($updatedStorage->getApplicableGroups()) === 0 && count($updatedStorage->getApplicableUsers()) === 0;
+
+		if ($wasGlobal && !$isGlobal) {
+			$this->dbConfig->removeApplicable($id, DBConfigService::APPLICABLE_TYPE_GLOBAL, null);
+		}
+		if (!$wasGlobal && $isGlobal) {
+			$this->dbConfig->addApplicable($id, DBConfigService::APPLICABLE_TYPE_GLOBAL, null);
 		}
 
 		$this->triggerChangeHooks($oldStorage, $updatedStorage);

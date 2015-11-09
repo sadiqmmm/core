@@ -100,7 +100,8 @@ class DBConfigService {
 	public function getAdminMountsFor($type, $value) {
 		$builder = $this->connection->getQueryBuilder();
 		$query = $this->getForQuery($builder, $type, $value);
-		$query->andWhere($builder->expr()->eq('m.type', $builder->expr()->literal(self::MOUNT_TYPE_ADMIN, \PDO::PARAM_INT)));
+		$query = $query->orWhere($builder->expr()->eq('a.type', $builder->expr()->literal(self::APPLICABLE_TYPE_GLOBAL, \PDO::PARAM_INT)));
+		$query = $query->andWhere($builder->expr()->eq('m.type', $builder->expr()->literal(self::MOUNT_TYPE_ADMIN, \PDO::PARAM_INT)));
 
 		return $this->getMountsFromQuery($query);
 	}
