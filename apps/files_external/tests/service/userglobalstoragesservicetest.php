@@ -316,6 +316,11 @@ class UserGlobalStoragesServiceTest extends GlobalStoragesServiceTest {
 		$this->assertTrue(true);
 	}
 
+	public function testAddStorageComplexConfig() {
+		// we don't test this here
+		$this->assertTrue(true);
+	}
+
 	public function testLegacyConfigConversionApplicableAll() {
 		// we don't test this here
 		$this->assertTrue(true);
