@@ -7,7 +7,7 @@
 		<name>*dbprefix*external_mounts</name>
 		<declaration>
 			<field>
-				<name>mount_id</name>
+				<name>id</name>
 				<type>integer</type>
 				<default>0</default>
 				<notnull>true</notnull>
@@ -46,22 +46,13 @@
 				<length>4</length>
 				<notnull>true</notnull>
 			</field>
-			<index>
-				<name>mount_id_index</name>
-				<unique>true</unique>
-				<primary>true</primary>
-				<field>
-					<name>mount_id</name>
-					<sorting>ascending</sorting>
-				</field>
-			</index>
 		</declaration>
 	</table>
 	<table>
 		<name>*dbprefix*external_applicable</name>
 		<declaration>
 			<field>
-				<name>applicable_id</name>
+				<name>id</name>
 				<type>integer</type>
 				<default>0</default>
 				<notnull>true</notnull>
@@ -87,15 +78,6 @@
 				<type>text</type>
 				<length>64</length>
 			</field>
-			<index>
-				<name>applicable_id_index</name>
-				<unique>true</unique>
-				<primary>true</primary>
-				<field>
-					<name>applicable_id</name>
-					<sorting>ascending</sorting>
-				</field>
-			</index>
 			<index>
 				<name>mount_id_app_index</name>
 				<field>
@@ -136,7 +118,7 @@
 		<name>*dbprefix*external_config</name>
 		<declaration>
 			<field>
-				<name>config_id</name>
+				<name>id</name>
 				<type>integer</type>
 				<default>0</default>
 				<notnull>true</notnull>
@@ -187,7 +169,7 @@
 		<name>*dbprefix*external_options</name>
 		<declaration>
 			<field>
-				<name>option_id</name>
+				<name>id</name>
 				<type>integer</type>
 				<default>0</default>
 				<notnull>true</notnull>
