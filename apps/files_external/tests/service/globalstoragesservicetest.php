@@ -623,4 +623,21 @@ class GlobalStoragesServiceTest extends StoragesServiceTest {
 		}
 	}
 
+	public function testAddStorageComplexConfig() {
+		$storage = $this->makeTestStorageData();
+		$storage->setBackendOption('complex', [
+			'nested_key' => 'nested_value',
+			'foo' => 'bar'
+		]);
+		$this->service->addStorage($storage);
+		$id = $storage->getId();
+
+		$savedStorage = $this->service->getStorage($id);
+
+		$this->assertEquals([
+			'nested_key' => 'nested_value',
+			'foo' => 'bar'
+		], $savedStorage->getBackendOption('complex'));
+	}
+
 }

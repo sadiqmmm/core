@@ -73,6 +73,17 @@ abstract class StoragesService {
 			return $applicable['value'];
 		}, $applicableGroups);
 
+		// transform key.subKey => $value into array
+		foreach ($mount['config'] as $key => $value) {
+			if (strpos($key, '.')) {
+				list($key, $subKey) = explode('.', $key, 2);
+				if (!isset($mount['config'][$key])) {
+					$mount['config'][$key] = [];
+				}
+				$mount['config'][$key][$subKey] = $value;
+			}
+		}
+
 		$config = $this->createStorage(
 			$mount['mount_point'],
 			$mount['storage_backend'],
@@ -203,12 +214,12 @@ abstract class StoragesService {
 			$this->dbConfig->addApplicable($configId, DBConfigService::APPLICABLE_TYPE_GROUP, $group);
 		}
 		foreach ($newStorage->getBackendOptions() as $key => $value) {
-			$this->dbConfig->setConfig($configId, $key, $value);
+			$this->setConfig($configId, $key, $value);
 		}
 		foreach ($newStorage->getMountOptions() as $key => $value) {
 			$this->dbConfig->setOption($configId, $key, $value);
 		}
-		if($isGlobal) {
+		if ($isGlobal) {
 			$this->dbConfig->addApplicable($configId, DBConfigService::APPLICABLE_TYPE_GLOBAL, null);
 		}
 
@@ -219,6 +230,25 @@ abstract class StoragesService {
 
 		$newStorage->setStatus(\OC_Mount_Config::STATUS_SUCCESS);
 		return $newStorage;
+	}
+
+	/**
+	 * Set config option, handling array values
+	 *
+	 * @param int $id
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	private function setConfig($id, $key, $value) {
+		if (is_array($value)) {
+			// flatten arrays into key.subKey => $value
+			foreach ($value as $subKey => $subValue) {
+				$fullKey = $key . '.' . $subKey;
+				$this->dbConfig->setConfig($id, $fullKey, $subValue);
+			}
+		} else {
+			$this->dbConfig->setConfig($id, $key, $value);
+		}
 	}
 
 	/**
@@ -356,7 +386,7 @@ abstract class StoragesService {
 		$changedOptions = array_diff_assoc($updatedStorage->getMountOptions(), $oldStorage->getMountOptions());
 
 		foreach ($changedConfig as $key => $value) {
-			$this->dbConfig->setConfig($id, $key, $value);
+			$this->setConfig($id, $key, $value);
 		}
 		foreach ($changedOptions as $key => $value) {
 			$this->dbConfig->setOption($id, $key, $value);
