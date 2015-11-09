@@ -26,6 +26,9 @@ use OCA\Files_External\Service\DBConfigService;
 use OCP\IDBConnection;
 use Test\TestCase;
 
+/**
+ * @group DB
+ */
 class DBConfigServiceTest extends TestCase {
 	/**
 	 * @var DBConfigService
