@@ -84,7 +84,7 @@ class CalDavBackendTest extends TestCase {
 		$this->assertEquals(0, count($books));
 	}
 
-	public function testCardOperations() {
+	public function testCalendarObjectsOperations() {
 
 		$calendarId = $this->createTestCalendar();
 
@@ -246,6 +246,8 @@ EOD;
 		$this->backend->createCalendar(self::UNIT_TEST_USER, 'Example', []);
 		$calendars = $this->backend->getCalendarsForUser(self::UNIT_TEST_USER);
 		$this->assertEquals(1, count($calendars));
+		$this->assertEquals(self::UNIT_TEST_USER, $calendars[0]['principaluri']);
+		$this->assertEquals('Example', $calendars[0]['uri']);
 		$calendarId = $calendars[0]['id'];
 
 		return $calendarId;

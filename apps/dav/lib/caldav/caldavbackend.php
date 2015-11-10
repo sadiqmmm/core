@@ -193,9 +193,9 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		$query->insert('calendars')
 				->values([
 						'principaluri' => $query->createNamedParameter($values['principaluri']),
-						'uri' => $query->createNamedParameter($values['principaluri']),
-						'synctoken' => $query->createNamedParameter($values['principaluri']),
-						'transparent' => $query->createNamedParameter($values['principaluri']),
+						'uri' => $query->createNamedParameter($values['uri']),
+						'synctoken' => $query->createNamedParameter($values['synctoken']),
+						'transparent' => $query->createNamedParameter($values['transparent']),
 				])
 				->execute();
 	}
@@ -356,7 +356,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				'etag'          => '"' . $row['etag'] . '"',
 				'calendarid'    => $row['calendarid'],
 				'size'          => (int)$row['size'],
-				'calendardata'  => $row['calendardata'],
+				'calendardata'  => $this->readBlob($row['calendardata']),
 				'component'     => strtolower($row['componenttype']),
 		];
 	}
@@ -393,7 +393,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 					'etag'         => '"' . $row['etag'] . '"',
 					'calendarid'   => $row['calendarid'],
 					'size'         => (int)$row['size'],
-					'calendardata' => $row['calendardata'],
+					'calendardata' => $this->readBlob($row['calendardata']),
 					'component'    => strtolower($row['componenttype']),
 			];
 
@@ -427,13 +427,13 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			->values([
 				'calendarid' => $query->createNamedParameter($calendarId),
 				'uri' => $query->createNamedParameter($objectUri),
-				'calendardata' => $query->createNamedParameter($calendarData),
+				'calendardata' => $query->createNamedParameter($calendarData, \PDO::PARAM_LOB),
 				'lastmodified' => $query->createNamedParameter(time()),
 				'etag' => $query->createNamedParameter($extraData['etag']),
 				'size' => $query->createNamedParameter($extraData['size']),
-				'componentType' => $query->createNamedParameter($extraData['componentType']),
-				'firstOccurence' => $query->createNamedParameter($extraData['firstOccurence']),
-				'lastOccurence' => $query->createNamedParameter($extraData['lastOccurence']),
+				'componenttype' => $query->createNamedParameter($extraData['componentType']),
+				'firstoccurence' => $query->createNamedParameter($extraData['firstOccurence']),
+				'lastoccurence' => $query->createNamedParameter($extraData['lastOccurence']),
 				'uid' => $query->createNamedParameter($extraData['uid']),
 			])
 			->execute();
@@ -466,7 +466,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 
 		$query = $this->db->getQueryBuilder();
 		$query->update('calendarobjects')
-				->set('calendardata', $query->createNamedParameter($calendarData))
+				->set('calendardata', $query->createNamedParameter($calendarData, \PDO::PARAM_LOB))
 				->set('lastmodified', $query->createNamedParameter(time()))
 				->set('etag', $query->createNamedParameter($extraData['etag']))
 				->set('size', $query->createNamedParameter($extraData['size']))
@@ -635,9 +635,9 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	function getCalendarObjectByUID($principalUri, $uid) {
 
 		$query = $this->db->getQueryBuilder();
-		$query->select([$query->createFunction('c.`uri` AS calendaruri'), $query->createFunction('co.`uri` AS objecturi')])
+		$query->select([$query->createFunction('c.`uri` AS `calendaruri`'), $query->createFunction('co.`uri` AS `objecturi`')])
 			->from('calendarobjects', 'co')
-			->leftJoin('co', 'calendars', 'c', 'co.calendarid = c.id')
+			->leftJoin('co', 'calendars', 'c', 'co.`calendarid` = c.`id`')
 			->where($query->expr()->eq('c.principaluri', $query->createNamedParameter($principalUri)))
 			->andWhere($query->expr()->eq('co.uid', $query->createNamedParameter($uid)));
 
@@ -950,5 +950,13 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				'uid' => $uid,
 		];
 
+	}
+
+	private function readBlob($cardData) {
+		if (is_resource($cardData)) {
+			return stream_get_contents($cardData);
+		}
+
+		return $cardData;
 	}
 }
