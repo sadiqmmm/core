@@ -271,9 +271,25 @@ CLASS:PUBLIC
 END:VEVENT
 END:VCALENDAR
 EOD;
-		$uri0 = $this->getUniqueID('card');
+		$uri0 = $this->getUniqueID('event');
 		$this->backend->createCalendarObject($calendarId, $uri0, $calData);
 
 		return $uri0;
 	}
+
+	public function testSyncSupport() {
+		$calendarId = $this->createTestCalendar();
+
+		// fist call without synctoken
+		$changes = $this->backend->getChangesForCalendar($calendarId, '', 1);
+		$syncToken = $changes['syncToken'];
+
+		// add a change
+		$event = $this->createEvent($calendarId, '20130912T130000Z', '20130912T140000Z');
+
+		// look for changes
+		$changes = $this->backend->getChangesForCalendar($calendarId, $syncToken, 1);
+		$this->assertEquals($event, $changes['added'][0]);
+	}
+
 }

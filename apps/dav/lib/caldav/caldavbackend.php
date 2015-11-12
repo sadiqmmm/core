@@ -707,7 +707,68 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @return array
 	 */
 	function getChangesForCalendar($calendarId, $syncToken, $syncLevel, $limit = null) {
-		// TODO: Implement getChangesForCalendar() method.
+		// Current synctoken
+		$stmt = $this->db->prepare('SELECT `synctoken` FROM `*PREFIX*calendars` WHERE `id` = ?');
+		$stmt->execute([ $calendarId ]);
+		$currentToken = $stmt->fetchColumn(0);
+
+		if (is_null($currentToken)) {
+			return null;
+		}
+
+		$result = [
+			'syncToken' => $currentToken,
+			'added'     => [],
+			'modified'  => [],
+			'deleted'   => [],
+		];
+
+		if ($syncToken) {
+
+			$query = "SELECT `uri`, `operation` FROM `*PREFIX*calendarchanges` WHERE `synctoken` >= ? AND `synctoken` < ? AND `calendarid` = ? ORDER BY `synctoken`";
+			if ($limit>0) {
+				$query.= " `LIMIT` " . (int)$limit;
+			}
+
+			// Fetching all changes
+			$stmt = $this->db->prepare($query);
+			$stmt->execute([$syncToken, $currentToken, $calendarId]);
+
+			$changes = [];
+
+			// This loop ensures that any duplicates are overwritten, only the
+			// last change on a node is relevant.
+			while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+
+				$changes[$row['uri']] = $row['operation'];
+
+			}
+
+			foreach($changes as $uri => $operation) {
+
+				switch($operation) {
+					case 1 :
+						$result['added'][] = $uri;
+						break;
+					case 2 :
+						$result['modified'][] = $uri;
+						break;
+					case 3 :
+						$result['deleted'][] = $uri;
+						break;
+				}
+
+			}
+		} else {
+			// No synctoken supplied, this is the initial sync.
+			$query = "SELECT `uri` FROM `*PREFIX*calendarobjects` WHERE `calendarid` = ?";
+			$stmt = $this->db->prepare($query);
+			$stmt->execute([$calendarId]);
+
+			$result['added'] = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+		}
+		return $result;
+
 	}
 
 	/**
